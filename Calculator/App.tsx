@@ -1,3 +1,5 @@
+/* eslint-disable radix */
+/* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -5,127 +7,183 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
-  ScrollView,
+  Pressable,
+  SafeAreaView,
   StatusBar,
-  StyleSheet,
   Text,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {excuteCalculator} from './NativeCalculatorUtils';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+export type TypeCalcAction =
+  | 'plus'
+  | 'minus'
+  | 'multiply'
+  | 'divide'
+  | 'clear'
+  | 'equal';
 
-function Section({children, title}: SectionProps): React.JSX.Element {
+const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const screenSize = useWindowDimensions();
+  const buttonSize = screenSize.width / 4;
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const [resultNum, setResultNum] = useState('');
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
+  const [inputNum, setInputNum] = useState('');
+  const [tempNumA, setTempNumA] = useState(0);
+  const [lastAction, setLastAction] = useState<Exclude<
+    TypeCalcAction,
+    'equal' | 'clear'
+  > | null>(null);
+
+  const onPressNumber = useCallback<(pressed: number) => void>(
+    pressed => {
+      if (resultNum !== '') {
+        setResultNum('');
+      }
+
+      setInputNum(prevState => {
+        const nextNum = parseInt(`${prevState}${pressed}`);
+        return nextNum.toString();
+      });
+    },
+    [resultNum],
+  );
+
+  const onPressAction = useCallback<(pressed: TypeCalcAction) => Promise<void>>(
+    async pressed => {
+      console.log(pressed);
+
+      if (pressed === 'clear') {
+        setInputNum('');
+        setTempNumA(0);
+        setResultNum('');
+
+        return;
+      }
+
+      if (pressed === 'equal') {
+        if (tempNumA !== 0 && lastAction !== null) {
+          const result = await excuteCalculator(
+            lastAction,
+            tempNumA,
+            parseInt(inputNum),
+          );
+
+          console.log(result);
+
+          setInputNum(result.toString());
+          setTempNumA(0);
+        }
+        return;
+      }
+
+      setLastAction(pressed);
+      if (resultNum !== '') {
+        //어떤 결과값이 있는 상태.
+        setTempNumA(parseInt(resultNum));
+        setResultNum('');
+        setInputNum('');
+      } else if (tempNumA === 0) {
+        //입력되지 않은 상태.
+        setTempNumA(parseInt(inputNum));
+        setInputNum('');
+      } else {
+        //입력한 숫자가 있는 상태
+        const result = await excuteCalculator(
+          pressed,
+          tempNumA,
+          parseInt(inputNum),
+        );
+
+        console.log(result);
+
+        setResultNum(result.toString());
+        setTempNumA(0);
+      }
+    },
+    [resultNum, tempNumA, lastAction, inputNum],
+  );
 
   return (
-    <View style={backgroundStyle}>
+    <SafeAreaView style={{flex: 1}}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
+      <View style={{flex: 1}}>
         <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          style={{flex: 1, alignItems: 'flex-end', justifyContent: 'center'}}>
+          <Text style={{fontSize: 48, padding: 48}}>
+            {resultNum !== '' ? resultNum : inputNum}
+          </Text>
         </View>
-      </ScrollView>
-    </View>
-  );
-}
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: 4,
+            }}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(number => (
+              <Pressable
+                key={number}
+                style={{
+                  width: buttonSize - 4,
+                  height: buttonSize - 4,
+                  borderRadius: (buttonSize - 4) * 0.5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'gray',
+                }}
+                onPress={() => onPressNumber(number)}>
+                <Text style={{fontSize: 24}}>{number}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={{paddingHorizontal: 12}}>
+            {[
+              {label: '+', action: 'plus'},
+              {label: '-', action: 'minus'},
+              {label: '*', action: 'multiply'},
+              {label: '/', action: 'divide'},
+              {label: 'C', action: 'clear'},
+              {label: '=', action: 'equal'},
+            ].map(action => (
+              <Pressable
+                key={action.action}
+                style={{
+                  width: screenSize.width / 6,
+                  height: screenSize.width / 6,
+                  borderRadius: buttonSize * 0.5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'lightgray',
+                }}
+                onPress={() => onPressAction(action.action as TypeCalcAction)}>
+                <Text style={{fontSize: 24}}>{action.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 export default App;

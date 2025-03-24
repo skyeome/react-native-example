@@ -102,6 +102,7 @@ export const MainScreen: React.FC = () => {
           restrauntList.map(item => {
             return (
               <Marker
+                key={item.address}
                 title={item.title}
                 description={item.address}
                 pinColor="blue"

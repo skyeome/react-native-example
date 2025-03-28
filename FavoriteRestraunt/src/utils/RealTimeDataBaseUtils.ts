@@ -1,4 +1,4 @@
-import database from '@react-native-firebase/database';
+import {getDatabase} from '@react-native-firebase/database';
 import {Restraunt} from '../screens/MainScreen';
 
 export const saveNewRestraunt = async (
@@ -8,7 +8,7 @@ export const saveNewRestraunt = async (
   longitude: number,
 ) => {
   // const ref = await database().
-  const db = database().ref('/restraunt');
+  const db = getDatabase().ref('/restraunt');
 
   const saveItem = {
     title,
@@ -23,7 +23,7 @@ export const saveNewRestraunt = async (
 };
 
 export const getRestrauntList = async (): Promise<Restraunt[]> => {
-  const db = database().ref('/restraunt');
+  const db = getDatabase().ref('/restraunt');
 
   return (await db
     .once('value')

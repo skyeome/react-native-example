@@ -72,26 +72,25 @@ const MainScreen = () => {
         }}
       />
 
-      <Button
-        onPress={() => {
-          console.log('??');
-          navigation.push('Add');
-        }}>
-        <View
-          style={[
-            {position: 'absolute', right: 12, bottom: 12 + safeArea.bottom},
-            {
-              width: 50,
-              height: 50,
-              borderRadius: 25,
-              backgroundColor: 'red',
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-          ]}>
+      <View
+        style={[
+          {position: 'absolute', right: 12, bottom: 12 + safeArea.bottom},
+          {
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            backgroundColor: 'red',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        ]}>
+        <Button
+          onPress={() => {
+            navigation.push('Add');
+          }}>
           <Icon name="add" size={30} color="white" />
-        </View>
-      </Button>
+        </Button>
+      </View>
     </View>
   );
 };

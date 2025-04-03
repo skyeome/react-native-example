@@ -1,5 +1,5 @@
 import React from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
+import {useColorScheme} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -15,10 +15,6 @@ function App(): React.JSX.Element {
 
   return (
     <SafeAreaProvider style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
       <NavigationContainer>
         <RootNavigation />
       </NavigationContainer>

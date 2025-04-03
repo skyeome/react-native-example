@@ -76,3 +76,6 @@ yarn-error.log
 
 # Editor
 .vscode
+
+# SQLite database files
+*.db

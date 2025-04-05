@@ -12,6 +12,7 @@ import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {convertToDateString} from '../utils/DateUtils';
+import {RemoteImage} from '../components/RemoteImage';
 
 const AddUpdateScreen = () => {
   const routes = useRootRoute<'Add' | 'Update'>();
@@ -51,7 +52,16 @@ const AddUpdateScreen = () => {
     }));
   }, []);
 
-  const onPressPhoto = useCallback(() => {}, []);
+  const onPressPhoto = useCallback(() => {
+    navigation.push('TakePhoto', {
+      onTakePhoto: url => {
+        setItem(prevState => ({
+          ...prevState,
+          photoUrl: url,
+        }));
+      },
+    });
+  }, [navigation]);
 
   const onPressDate = useCallback(() => {
     navigation.push('Calendar', {
@@ -171,17 +181,26 @@ const AddUpdateScreen = () => {
           </View>
           <View style={{marginLeft: 24}}>
             <Button onPress={onPressPhoto}>
-              <View
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 12,
-                  backgroundColor: 'lightgray',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Icon name="add" size={24} color="gray" />
-              </View>
+              {item.photoUrl ? (
+                <RemoteImage
+                  url={item.photoUrl}
+                  width={100}
+                  height={100}
+                  style={{borderRadius: 12}}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 12,
+                    backgroundColor: 'lightgray',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Icon name="add" size={24} color="gray" />
+                </View>
+              )}
             </Button>
           </View>
         </View>

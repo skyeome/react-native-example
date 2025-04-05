@@ -10,6 +10,7 @@ import CalenderSelectScreen from '../screens/CalenderSelectScreen';
 import DetailScreen from '../screens/DetailScreen';
 import MainScreen from '../screens/MainScreen';
 import MonthlyAverageScren from '../screens/MonthlyAverageScren';
+import TakePhotoScreen from '../screens/TakePhotoScreen';
 
 type ScreenParams = {
   Add: undefined;
@@ -18,6 +19,7 @@ type ScreenParams = {
   Detail: {item: AccountBookHistory};
   MonthlyAverage: undefined;
   Calendar: {selected: number; onSelectDate: (date: number) => void};
+  TakePhoto: {onTakePhoto: (uri: string) => void};
 };
 
 const Stack = createNativeStackNavigator<ScreenParams>();
@@ -32,6 +34,7 @@ const RootNavigation = () => {
       <Stack.Screen name="MonthlyAverage" component={MonthlyAverageScren} />
       <Stack.Screen name="Detail" component={DetailScreen} />
       <Stack.Screen name="Calendar" component={CalenderSelectScreen} />
+      <Stack.Screen name="TakePhoto" component={TakePhotoScreen} />
     </Stack.Navigator>
   );
 };

@@ -15,7 +15,10 @@ import TakePhotoScreen from '../screens/TakePhotoScreen';
 type ScreenParams = {
   Add: undefined;
   Main: undefined;
-  Update: {item: AccountBookHistory};
+  Update: {
+    item: AccountBookHistory;
+    onChangeData: (data: AccountBookHistory) => void;
+  };
   Detail: {item: AccountBookHistory};
   MonthlyAverage: undefined;
   Calendar: {selected: number; onSelectDate: (date: number) => void};

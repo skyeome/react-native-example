@@ -17,7 +17,7 @@ import {RemoteImage} from '../components/RemoteImage';
 const AddUpdateScreen = () => {
   const routes = useRootRoute<'Add' | 'Update'>();
   const navigation = useRootNavigation<'Add' | 'Update'>();
-  const {insertItem} = useAccountBookHistoryItem();
+  const {insertItem, updateItem} = useAccountBookHistoryItem();
 
   const [item, setItem] = useState<AccountBookHistory>(
     routes.params?.item ?? {
@@ -84,12 +84,15 @@ const AddUpdateScreen = () => {
 
   const onPressSave = useCallback(async () => {
     if (routes.name === 'Add') {
-      const result = await insertItem(item);
+      await insertItem(item);
+      navigation.goBack();
+    } else {
+      const result = await updateItem(item);
       console.log(result);
-
+      routes.params?.onChangeData(result);
       navigation.goBack();
     }
-  }, [insertItem, navigation, item, routes.name]);
+  }, [routes.name, routes.params, insertItem, item, navigation, updateItem]);
 
   return (
     <View style={{flex: 1}}>
@@ -147,8 +150,6 @@ const AddUpdateScreen = () => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-
-            // justifyContent: 'center',
           }}>
           <View style={{flex: 1}}>
             <SingleLineInput
@@ -180,15 +181,28 @@ const AddUpdateScreen = () => {
             </Button>
           </View>
           <View style={{marginLeft: 24}}>
-            <Button onPress={onPressPhoto}>
-              {item.photoUrl ? (
-                <RemoteImage
-                  url={item.photoUrl}
-                  width={100}
-                  height={100}
-                  style={{borderRadius: 12}}
-                />
-              ) : (
+            {item.photoUrl !== null ? (
+              <Button onPress={onPressPhoto}>
+                <View
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 12,
+                    backgroundColor: 'lightgray',
+                  }}>
+                  <RemoteImage
+                    url={item.photoUrl}
+                    width={100}
+                    height={100}
+                    style={{
+                      borderRadius: 12,
+                      backgroundColor: 'lightgray',
+                    }}
+                  />
+                </View>
+              </Button>
+            ) : (
+              <Button onPress={onPressPhoto}>
                 <View
                   style={{
                     width: 100,
@@ -200,8 +214,8 @@ const AddUpdateScreen = () => {
                   }}>
                   <Icon name="add" size={24} color="gray" />
                 </View>
-              )}
-            </Button>
+              </Button>
+            )}
           </View>
         </View>
 
